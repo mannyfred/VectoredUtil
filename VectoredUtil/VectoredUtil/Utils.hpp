@@ -17,23 +17,28 @@ namespace Utils {
 
 	PVOID HandlerList() {
 
-		BYTE* pRtlRemoveVectoredExceptionHandler = (BYTE*)GetProcAddress(GetModuleHandle(TEXT("NTDLL.DLL")), "RtlRemoveVectoredExceptionHandler");
+		ULONG64 ptr = (ULONG64)GetProcAddress(GetModuleHandle(TEXT("NTDLL.DLL")), "RtlRemoveVectoredExceptionHandler");
 
-		if (!pRtlRemoveVectoredExceptionHandler)
+		if (!ptr)
 			return nullptr;
 
-		while (true) {
+		while (*(BYTE*)ptr != 0xcc) {
 
-			if ((*pRtlRemoveVectoredExceptionHandler == 0x4c) && (*(pRtlRemoveVectoredExceptionHandler + 1) == 0x8d) && (*(pRtlRemoveVectoredExceptionHandler + 2) == 0x25)) {
-				int offset = *(int*)(pRtlRemoveVectoredExceptionHandler + 3);
-				BYTE* pNext = pRtlRemoveVectoredExceptionHandler + 7;
-				return pNext + offset;
+			if (*(BYTE*)ptr == 0xe9) {
+
+				ptr = ptr + 5 + *(int*)(ptr + 1);
+
+				//Maybe some error checking?
+				while (((*(ULONG*)ptr) & 0xffffff) != 0x258d4c) {
+					ptr = ptr + 1;
+				}
+
+				ptr = ptr + 7 + *(int*)(ptr + 3);
+				return (PVOID)ptr;
 			}
 
-			pRtlRemoveVectoredExceptionHandler++;
+			ptr = ptr + 1;
 		}
-
-		return nullptr;
 	}
 
 	VOID PrintStuff(DWORD val, const std::string& name) {
