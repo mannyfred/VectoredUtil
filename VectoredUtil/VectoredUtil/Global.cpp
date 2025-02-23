@@ -91,11 +91,11 @@ BOOL InitKnownDllList() {
 		}
 
 		for (OBJECT_DIRECTORY_INFORMATION* pInfoEntry = pInfo; pInfoEntry->Name.Length != 0; pInfoEntry++) {
-			dlls.push_back(pInfoEntry->Name.Buffer);
+			dlls.push_back(CharLowerW(pInfoEntry->Name.Buffer));
 		}
 	}
 
-	std::wstring junk = L"KnownDllPath";
+	std::wstring junk = L"knowndllpath";
 	auto it = std::remove(dlls.begin(), dlls.end(), junk);
 	if (it != dlls.end()) {
 		dlls.erase(it, dlls.end());

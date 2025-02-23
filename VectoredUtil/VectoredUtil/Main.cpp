@@ -39,9 +39,13 @@ VOID GetLocation(HANDLE hProc, PVOID pAddress, int index, LPCWSTR type) {
 
 		const wchar_t* name = GET_FILENAMEW_FROM_UNICODE_STRING(pName);
 
+		wchar_t lower[MAX_PATH];
+		wcsncpy_s(lower, name, MAX_PATH);
+		CharLowerW(lower);
+
 		for (std::vector<std::wstring>::iterator iter = dlls.begin(), end = dlls.end(); iter != end; ++iter) {
 
-			if (*iter == name) {
+			if (*iter == lower) {
 
 				pAlignedAddress = reinterpret_cast<PVOID>(((ULONG_PTR)pAddress & ~(PAGE_SIZE - 1)));
 
@@ -475,6 +479,8 @@ int wmain() {
 	Global.pVchStart = (PVOID)((ULONG_PTR)Global.pHandlerList + 32);
 	Global.bOverWrite = false;
 	Global.lpPayloadFile = nullptr;
+
+	Utils::EnableColor();
 
 	for (int i = 0; i < argc; i++) {
 

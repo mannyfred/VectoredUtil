@@ -15,6 +15,16 @@ namespace Utils {
 		return (PVOID)(RotateLeft64((ULONG_PTR)pointer ^ cookie, 0x40 - (cookie & 0x3f)));
 	}
 
+	VOID EnableColor() {
+
+		DWORD	mode;
+		HANDLE	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		GetConsoleMode(hOut, &mode);
+		mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		SetConsoleMode(hOut, mode);
+	}
+
 	PVOID HandlerList() {
 
 		ULONG64 ptr = (ULONG64)GetProcAddress(GetModuleHandle(TEXT("NTDLL.DLL")), "RtlRemoveVectoredExceptionHandler");
@@ -28,7 +38,6 @@ namespace Utils {
 
 				ptr = ptr + 5 + *(int*)(ptr + 1);
 
-				//Maybe some error checking?
 				while (((*(ULONG*)ptr) & 0xffffff) != 0x258d4c) {
 					ptr = ptr + 1;
 				}
